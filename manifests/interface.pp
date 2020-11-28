@@ -262,265 +262,247 @@
 #
 define network::interface (
 
-  $enable                = true,
-  $ensure                = 'present',
-  $template              = "network/interface/${::osfamily}.erb",
-  $options               = undef,
-  $options_extra_redhat  = undef,
-  $options_extra_debian  = undef,
-  $options_extra_suse    = undef,
-  $interface             = $name,
-  $restart_all_nic = $::osfamily ? {
+  Stdlib::Compat::Bool $enable          = true,
+  Enum['present', 'absent'] $ensure     = 'present',
+  $template                             = "network/interface/${::osfamily}.erb",
+  $options                              = undef,
+  $options_extra_redhat                 = undef,
+  $options_extra_debian                 = undef,
+  $options_extra_suse                   = undef,
+  $interface                            = $name,
+  Stdlib::Compat::Bool $restart_all_nic = $::osfamily ? {
     'RedHat' => $::operatingsystemmajrelease ? {
       '8'     => false,
       default => true,
     },
     default  => true,
   },
-  $reload_command        = undef,
+  $reload_command                       = undef,
 
-  $enable_dhcp           = false,
+  $enable_dhcp                          = false,
 
-  $ipaddress             = '',
-  $netmask               = undef,
-  $network               = undef,
-  $broadcast             = undef,
-  $gateway               = undef,
-  $hwaddr                = undef,
-  $mtu                   = undef,
+  $ipaddress                            = '',
+  $netmask                              = undef,
+  $network                              = undef,
+  $broadcast                            = undef,
+  $gateway                              = undef,
+  $hwaddr                               = undef,
+  $mtu                                  = undef,
 
-  $description           = undef,
+  $description                          = undef,
 
   ## Debian specific
-  $manage_order          = '10',
-  $auto                  = true,
-  $allow_hotplug         = undef,
-  $method                = '',
-  $family                = 'inet',
-  $stanza                = 'iface',
-  $address               = '',
-  $dns_search            = undef,
-  $dns_nameservers       = undef,
+  $manage_order                         = '10',
+  Stdlib::Compat::Bool $auto            = true,
+  $allow_hotplug                        = undef,
+  $method                               = '',
+  $family                               = 'inet',
+  $stanza                               = 'iface',
+  $address                              = '',
+  $dns_search                           = undef,
+  $dns_nameservers                      = undef,
   # For method: static
-  $metric                = undef,
-  $pointopoint           = undef,
+  $metric                               = undef,
+  $pointopoint                          = undef,
 
   # For method: dhcp
-  $hostname              = undef,
-  $leasehours            = undef,
-  $leasetime             = undef,
-  $client                = undef,
+  $hostname                             = undef,
+  $leasehours                           = undef,
+  $leasetime                            = undef,
+  $client                               = undef,
 
   # For method: bootp
-  $bootfile              = undef,
-  $server                = undef,
+  $bootfile                             = undef,
+  $server                               = undef,
 
   # For method: tunnel
-  $mode                  = undef,
-  $endpoint              = undef,
-  $dstaddr               = undef,
-  $local                 = undef,
-  $ttl                   = undef,
+  $mode                                 = undef,
+  $endpoint                             = undef,
+  $dstaddr                              = undef,
+  $local                                = undef,
+  $ttl                                  = undef,
 
   # For method: ppp
-  $provider              = undef,
-  $unit                  = undef,
+  $provider                             = undef,
+  $unit                                 = undef,
 
   # For inet6 family
-  $privext               = undef,
-  $dhcp                  = undef,
-  $media                 = undef,
-  $accept_ra             = undef,
-  $autoconf              = undef,
-  $vlan_raw_device       = undef,
+  $privext                              = undef,
+  $dhcp                                 = undef,
+  $media                                = undef,
+  $accept_ra                            = undef,
+  $autoconf                             = undef,
+  $vlan_raw_device                      = undef,
 
   # Convenience shortcuts
-  $nonlocal_gateway      = undef,
-  $additional_networks   = [ ],
+  $nonlocal_gateway                     = undef,
+  $additional_networks                  = [ ],
 
   # Common ifupdown scripts
-  $up                    = [ ],
-  $pre_up                = [ ],
-  $post_up               = [ ],
-  $down                  = [ ],
-  $pre_down              = [ ],
-  $post_down             = [ ],
+  Stdlib::Compat::Array $up             = [ ],
+  Stdlib::Compat::Array $pre_up         = [ ],
+  $post_up                              = [ ],
+  Stdlib::Compat::Array $down           = [ ],
+  Stdlib::Compat::Array $pre_down       = [ ],
+  $post_down                            = [ ],
 
   # For virtual routing and forwarding (VRF)
-  $vrf                   = undef,
-  $vrf_table             = undef,
+  $vrf                                  = undef,
+  $vrf_table                            = undef,
 
   # For bonding
-  $slaves                = [ ],
-  $bond_mode             = undef,
-  $bond_miimon           = undef,
-  $bond_downdelay        = undef,
-  $bond_updelay          = undef,
-  $bond_lacp_rate        = undef,
-  $bond_master           = undef,
-  $bond_primary          = undef,
-  $bond_slaves           = [ ],
-  $bond_xmit_hash_policy = undef,
-  $bond_num_grat_arp     = undef,
-  $bond_arp_all          = undef,
-  $bond_arp_interval     = undef,
-  $bond_arp_iptarget     = undef,
-  $bond_fail_over_mac    = undef,
-  $bond_ad_select        = undef,
-  $use_carrier           = undef,
-  $primary_reselect      = undef,
+  Stdlib::Compat::Array $slaves         = [ ],
+  $bond_mode                            = undef,
+  $bond_miimon                          = undef,
+  $bond_downdelay                       = undef,
+  $bond_updelay                         = undef,
+  $bond_lacp_rate                       = undef,
+  $bond_master                          = undef,
+  $bond_primary                         = undef,
+  Stdlib::Compat::Array $bond_slaves    = [ ],
+  $bond_xmit_hash_policy                = undef,
+  $bond_num_grat_arp                    = undef,
+  $bond_arp_all                         = undef,
+  $bond_arp_interval                    = undef,
+  $bond_arp_iptarget                    = undef,
+  $bond_fail_over_mac                   = undef,
+  $bond_ad_select                       = undef,
+  $use_carrier                          = undef,
+  $primary_reselect                     = undef,
 
   # For teaming
-  $team_config           = undef,
-  $team_port_config      = undef,
-  $team_master           = undef,
+  $team_config                          = undef,
+  $team_port_config                     = undef,
+  $team_master                          = undef,
 
   # For bridging
-  $bridge_ports          = [ ],
-  $bridge_stp            = undef,
-  $bridge_fd             = undef,
-  $bridge_maxwait        = undef,
-  $bridge_waitport       = undef,
+  Stdlib::Compat::Array $bridge_ports   = [ ],
+  $bridge_stp                           = undef,
+  $bridge_fd                            = undef,
+  $bridge_maxwait                       = undef,
+  $bridge_waitport                      = undef,
 
   # For wpa_supplicant
-  $wpa_ssid              = undef,
-  $wpa_bssid             = undef,
-  $wpa_psk               = undef,
-  $wpa_key_mgmt          = [ ],
-  $wpa_group             = [ ],
-  $wpa_pairwise          = [ ],
-  $wpa_auth_alg          = [ ],
-  $wpa_proto             = [ ],
-  $wpa_identity          = undef,
-  $wpa_password          = undef,
-  $wpa_scan_ssid         = undef,
-  $wpa_ap_scan           = undef,
+  $wpa_ssid                             = undef,
+  $wpa_bssid                            = undef,
+  $wpa_psk                              = undef,
+  Stdlib::Compat::Array $wpa_key_mgmt   = [ ],
+  Stdlib::Compat::Array $wpa_group      = [ ],
+  Stdlib::Compat::Array $wpa_pairwise   = [ ],
+  Stdlib::Compat::Array $wpa_auth_alg   = [ ],
+  Stdlib::Compat::Array $wpa_proto      = [ ],
+  $wpa_identity                         = undef,
+  $wpa_password                         = undef,
+  $wpa_scan_ssid                        = undef,
+  $wpa_ap_scan                          = undef,
 
   ## RedHat specific
-  $ipaddr                = '',
-  $prefix                = undef,
-  $uuid                  = undef,
-  $bootproto             = '',
-  $userctl               = 'no',
-  $type                  = 'Ethernet',
-  $ethtool_opts          = undef,
-  $ipv6init              = undef,
-  $ipv6_autoconf         = undef,
-  $ipv6_privacy          = undef,
-  $ipv6_addr_gen_mode    = undef,
-  $ipv6addr              = undef,
-  $ipv6addr_secondaries  = [],
-  $ipv6_defaultgw        = undef,
-  $dhcp_hostname         = undef,
-  $srcaddr               = undef,
-  $peerdns               = '',
-  $peerntp               = '',
-  $onboot                = '',
-  $onparent              = undef,
-  $defroute              = undef,
-  $dns1                  = undef,
-  $dns2                  = undef,
-  $dns3                  = undef,
-  $domain                = undef,
-  $nm_controlled         = undef,
-  $master                = undef,
-  $slave                 = undef,
-  $bonding_master        = undef,
-  $bonding_opts          = undef,
-  $vlan                  = undef,
-  $vlan_name_type        = undef,
-  $vlan_id               = undef,
-  $vid                   = undef,
-  $physdev               = undef,
-  $bridge                = undef,
-  $arpcheck              = undef,
-  $zone                  = undef,
-  $arp                   = undef,
-  $nozeroconf            = undef,
-  $linkdelay             = undef,
-  $check_link_down       = false,
-  $hotplug               = undef,
-  $persistent_dhclient   = undef,
-  $nm_name               = undef,
-  $iprule                = undef,
+  $ipaddr                               = '',
+  $prefix                               = undef,
+  $uuid                                 = undef,
+  $bootproto                            = '',
+  $userctl                              = 'no',
+  $type                                 = 'Ethernet',
+  $ethtool_opts                         = undef,
+  $ipv6init                             = undef,
+  $ipv6_autoconf                        = undef,
+  $ipv6_privacy                         = undef,
+  $ipv6_addr_gen_mode                   = undef,
+  $ipv6addr                             = undef,
+  $ipv6addr_secondaries                 = [],
+  $ipv6_defaultgw                       = undef,
+  $dhcp_hostname                        = undef,
+  $srcaddr                              = undef,
+  $peerdns                              = '',
+  $peerntp                              = '',
+  $onboot                               = '',
+  $onparent                             = undef,
+  $defroute                             = undef,
+  $dns1                                 = undef,
+  $dns2                                 = undef,
+  $dns3                                 = undef,
+  $domain                               = undef,
+  $nm_controlled                        = undef,
+  $master                               = undef,
+  $slave                                = undef,
+  $bonding_master                       = undef,
+  $bonding_opts                         = undef,
+  $vlan                                 = undef,
+  $vlan_name_type                       = undef,
+  $vlan_id                              = undef,
+  $vid                                  = undef,
+  $physdev                              = undef,
+  $bridge                               = undef,
+  $arpcheck                             = undef,
+  $zone                                 = undef,
+  $arp                                  = undef,
+  $nozeroconf                           = undef,
+  $linkdelay                            = undef,
+  $check_link_down                      = false,
+  $hotplug                              = undef,
+  $persistent_dhclient                  = undef,
+  $nm_name                              = undef,
+  $iprule                               = undef,
 
   # RedHat specific for InfiniBand
-  $connected_mode        = undef,
+  $connected_mode                       = undef,
 
   # RedHat specific for GRE
-  $peer_outer_ipaddr     = undef,
-  $peer_inner_ipaddr     = undef,
-  $my_outer_ipaddr       = undef,
-  $my_inner_ipaddr       = undef,
+  $peer_outer_ipaddr                    = undef,
+  $peer_inner_ipaddr                    = undef,
+  $my_outer_ipaddr                      = undef,
+  $my_inner_ipaddr                      = undef,
 
   # RedHat and Debian specific for Open vSwitch
-  $devicetype            = undef, # On RedHat. Same of ovs_type for Debian
-  $bond_ifaces           = undef, # On RedHat Same of ovs_bonds for Debian
-  $ovs_type              = undef, # Debian
-  $ovs_bonds             = undef, # Debian
-  $ovs_bridge            = undef,
-  $ovs_ports             = undef,
-  $ovs_extra             = undef,
-  $ovs_options           = undef,
-  $ovs_patch_peer        = undef,
-  $ovsrequires           = undef,
-  $ovs_tunnel_type       = undef,
-  $ovs_tunnel_options    = undef,
-  $ovsdhcpinterfaces     = undef,
-  $ovsbootproto          = undef,
+  $devicetype                           = undef, # On RedHat. Same of ovs_type for Debian
+  $bond_ifaces                          = undef, # On RedHat Same of ovs_bonds for Debian
+  $ovs_type                             = undef, # Debian
+  $ovs_bonds                            = undef, # Debian
+  $ovs_bridge                           = undef,
+  $ovs_ports                            = undef,
+  $ovs_extra                            = undef,
+  $ovs_options                          = undef,
+  $ovs_patch_peer                       = undef,
+  $ovsrequires                          = undef,
+  $ovs_tunnel_type                      = undef,
+  $ovs_tunnel_options                   = undef,
+  $ovsdhcpinterfaces                    = undef,
+  $ovsbootproto                         = undef,
 
   # RedHat specific for zLinux
-  $subchannels           = undef,
-  $nettype               = undef,
-  $layer2                = undef,
-  $zlinux_options        = undef,
+  $subchannels                          = undef,
+  $nettype                              = undef,
+  $layer2                               = undef,
+  $zlinux_options                       = undef,
 
   ## Suse specific
-  $startmode             = '',
-  $usercontrol           = 'no',
-  $firewall              = undef,
-  $aliases               = undef,
-  $remote_ipaddr         = undef,
-  $check_duplicate_ip    = undef,
-  $send_gratuitous_arp   = undef,
-  $pre_up_script         = undef,
-  $post_up_script        = undef,
-  $pre_down_script       = undef,
-  $post_down_script      = undef,
+  $startmode                            = '',
+  $usercontrol                          = 'no',
+  $firewall                             = undef,
+  $aliases                              = undef,
+  $remote_ipaddr                        = undef,
+  $check_duplicate_ip                   = undef,
+  $send_gratuitous_arp                  = undef,
+  $pre_up_script                        = undef,
+  $post_up_script                       = undef,
+  $pre_down_script                      = undef,
+  $post_down_script                     = undef,
 
   # For bonding
-  $bond_moduleopts       = undef,
+  $bond_moduleopts                      = undef,
   # also used for Suse bonding: $bond_master, $bond_slaves
 
   # For bridging
-  $bridge_fwddelay       = undef,
+  $bridge_fwddelay                      = undef,
   # also used for Suse bridging: $bridge, $bridge_ports, $bridge_stp
 
   # For vlan
-  $etherdevice           = undef,
+  $etherdevice                          = undef,
   # also used for Suse vlan: $vlan
 
   ) {
 
   include ::network
-
-  validate_re($ensure, '^(present|absent)$', "Ensure can only be present or absent (to add or remove an interface). Current value: ${ensure}")
-  validate_bool($auto)
-  validate_bool($enable)
-  validate_bool($restart_all_nic)
-
-  validate_array($up)
-  validate_array($pre_up)
-  validate_array($down)
-  validate_array($pre_down)
-  validate_array($slaves)
-  validate_array($bond_slaves)
-  validate_array($bridge_ports)
-  validate_array($wpa_key_mgmt)
-  validate_array($wpa_group)
-  validate_array($wpa_pairwise)
-  validate_array($wpa_auth_alg)
-  validate_array($wpa_proto)
 
   # $subchannels is only valid for zLinux/SystemZ/s390x.
   if $::architecture == 's390x' {
