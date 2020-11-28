@@ -59,7 +59,7 @@
 # Deploys the file /etc/sysconfig/network/ifroute-$name.
 #
 define network::mroute (
-  $routes,
+  Hash $routes,
   $interface           = $name,
   $config_file_notify  = 'class_default',
   $ensure              = 'present',
@@ -67,9 +67,6 @@ define network::mroute (
   $route_down_template = undef,
   $table               = undef,
 ) {
-  # Validate our arrays
-  validate_hash($routes)
-
   include ::network
 
   $real_config_file_notify = $config_file_notify ? {
@@ -94,10 +91,7 @@ define network::mroute (
   }
 
   if $::osfamily == 'SuSE' {
-    $networks = keys($routes)
-    network::mroute::validate_gw { $networks:
-      routes => $routes,
-    }
+    $routes.each |String $k, String $v| {}
   }
 
   # TODO: add support for other distros

@@ -506,18 +506,18 @@ define network::interface (
 
   # $subchannels is only valid for zLinux/SystemZ/s390x.
   if $::architecture == 's390x' {
-    validate_array($subchannels)
-    validate_re($nettype, '^(qeth|lcs|ctc)$', "${name}::\$nettype may be 'qeth', 'lcs' or 'ctc' only and is set to <${nettype}>.")
+    validate_legacy("Stdlib::Compat::Array", "validate_array", $subchannels, [$subchannels])
+    validate_legacy("Enum['qeth', 'lcs', 'ctc']", "validate_re", $nettype, [$nettype,  '^(qeth|lcs|ctc)$'])
     # Different parameters required for RHEL6 and RHEL7
     if $::operatingsystemmajrelease =~ /^7|^8/ {
-      validate_string($zlinux_options)
+      validate_legacy("String", "validate_string", $zlinux_options, [$zlinux_options])
     } else {
-      validate_re($layer2, '^0|1$', "${name}::\$layer2 must be 1 or 0 and is to <${layer2}>.")
+      validate_legacy("Enum['0', '1']", "validate_re", $layer2, [$layer2, '^0|1$'])
     }
   }
   if $::osfamily == 'RedHat' {
     if $iprule != undef {
-      validate_array($iprule)
+      validate_legacy("Optional[Stdlib::Compat::Array]", "validate_array", $iprule, [$iprule])
     }
   }
   if $arp != undef and ! ($arp in ['yes', 'no']) {
